@@ -27,7 +27,7 @@ data "template_file" "cacert" {
 data "oci_core_services" "test_services" {
   filter {
     name   = "name"
-    values = [".*Object.*Storage"]
+    values = ["All .* Services In Oracle Services Network"]
     regex  = true
   }
 }

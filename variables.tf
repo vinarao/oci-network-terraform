@@ -3,6 +3,7 @@ variable "tenancy_ocid" {}
 
 variable "user_ocid" {}
 variable "fingerprint" {}
+variable "customer_network" {}
 variable "private_key_path" {}
 variable "private_key_password" {}
 variable "compartment_ocid" {}
@@ -19,6 +20,7 @@ variable "instance_image_ocid" {
     // Oracle-provided image "Oracle-Linux-7.4-2018.02.21-1"
     us-phoenix-1 = "ocid1.image.oc1.phx.aaaaaaaaupbfz5f5hdvejulmalhyb6goieolullgkpumorbvxlwkaowglslq"
     ap-mumbai-1    = "ocid1.image.oc1.ap-mumbai-1.aaaaaaaaf6bipkx4bexuqwkjhttzkccoew6jktnskasx7g46mnpfp5p2uncq"
+    ap-sydney-1    = "ocid1.image.oc1.ap-sydney-1.aaaaaaaazxqgyblayejmgoabszoc7psza3hyf33z4ovyw4v74zbke6vnufia"
     sa-saopaulo-1  = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaacvzqswlkixoj4mmhyvxajburto5ulbicbh4pssfgqf5efmsowqga"
     ap-tokyo-1   = "ocid1.image.oc1.ap-tokyo-1.aaaaaaaabf42ugaxsbovl7jjyef5kkucvie43eo3a3m3aluxvw7yiymzxhfa"
     us-ashburn-1   = "ocid1.image.oc1.iad.aaaaaaaajlw3xfie2t5t52uegyhiq2npx7bqyu4uvi2zyu3w3mqayc2bxmaa"

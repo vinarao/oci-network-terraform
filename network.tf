@@ -9,6 +9,12 @@ resource "oci_core_vcn" "vcn1" {
   dns_label      = "vcn"
 }
 
+resource "oci_core_vcn" "vcn2" {
+  cidr_block     = "10.2.0.0/16"
+  compartment_id = "${var.compartment_ocid}"
+  display_name   = "vcn2"
+  dns_label      = "vcn2"
+}
 
 resource "oci_core_subnet" "public_subnet1" {
   depends_on = ["oci_core_security_list.public-securitylist"]
@@ -34,6 +40,18 @@ resource "oci_core_subnet" "private_subnet1" {
   dhcp_options_id   = "${oci_core_vcn.vcn1.default_dhcp_options_id}"
 }
 
+resource "oci_core_subnet" "private_subnet2" {
+  depends_on          = ["oci_core_security_list.private-securitylist2"]
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
+  cidr_block          = "10.2.22.0/24"
+  display_name        = "private_subnet2"
+  dns_label           = "privatesubnet2"
+  security_list_ids   = ["${oci_core_security_list.private-securitylist2.id}"]
+  compartment_id      = "${var.compartment_ocid}"
+  vcn_id              = "${oci_core_vcn.vcn2.id}"
+  route_table_id      = "${oci_core_route_table.private_routetable2.id}"
+  dhcp_options_id     = "${oci_core_vcn.vcn2.default_dhcp_options_id}"
+}
 
 resource "oci_core_internet_gateway" "internetgateway1" {
   compartment_id = "${var.compartment_ocid}"
@@ -51,7 +69,7 @@ resource "oci_core_service_gateway" "service_gateway" {
   compartment_id = "${var.compartment_ocid}"
 
   services {
-    service_id = "${lookup(data.oci_core_services.test_services.services[1], "id")}"
+    service_id = "${lookup(data.oci_core_services.test_services.services[0], "id")}"
   }
 
   vcn_id = "${oci_core_vcn.vcn1.id}"
@@ -68,6 +86,20 @@ resource "oci_core_drg_attachment" "drg_attachment" {
     display_name = "DRG1"
     route_table_id = "${oci_core_route_table.drg-route-table.id}"
 }
+
+resource "oci_core_local_peering_gateway" "vcn1_lpg" {
+  compartment_id = "${var.compartment_ocid}"
+  vcn_id         = "${oci_core_vcn.vcn1.id}"
+  display_name   = "vcn1-lpg"
+}
+
+resource "oci_core_local_peering_gateway" "vcn2_lpg" {
+  compartment_id = "${var.compartment_ocid}"
+  vcn_id         = "${oci_core_vcn.vcn2.id}"
+  display_name   = "vcn2-lpg"
+  peer_id        = "${oci_core_local_peering_gateway.vcn1_lpg.id}"
+}
+
 resource "oci_core_route_table" "public_routetable1" {
   compartment_id = "${var.compartment_ocid}"
   vcn_id         = "${oci_core_vcn.vcn1.id}"
@@ -92,9 +124,26 @@ resource "oci_core_route_table" "private_routetable1" {
 
   }
   route_rules {
-    destination       = "${lookup(data.oci_core_services.test_services.services[1], "cidr_block")}"
+    destination       = "${lookup(data.oci_core_services.test_services.services[0], "cidr_block")}"
     destination_type  = "SERVICE_CIDR_BLOCK"
     network_entity_id = "${oci_core_service_gateway.service_gateway.id}"
+  }
+  route_rules {
+    destination       = "${oci_core_vcn.vcn2.cidr_block}"
+    destination_type  = "CIDR_BLOCK"
+    network_entity_id = "${oci_core_local_peering_gateway.vcn1_lpg.id}"
+  }
+}
+
+resource "oci_core_route_table" "private_routetable2" {
+  compartment_id = "${var.compartment_ocid}"
+  vcn_id         = "${oci_core_vcn.vcn2.id}"
+  display_name   = "private_routetable1"
+
+  route_rules {
+    destination       = "0.0.0.0/0"
+    destination_type  = "CIDR_BLOCK"
+    network_entity_id = "${oci_core_local_peering_gateway.vcn2_lpg.id}"
   }
 }
 
@@ -114,7 +163,7 @@ resource "oci_core_route_table" "drg-route-table" {
   vcn_id         = "${oci_core_vcn.vcn1.id}"
   display_name   = "drg-routetable"
   route_rules {
-    destination       = "${lookup(data.oci_core_services.test_services.services[1], "cidr_block")}"
+    destination       = "${lookup(data.oci_core_services.test_services.services[0], "cidr_block")}"
     destination_type  = "SERVICE_CIDR_BLOCK"
     network_entity_id = "${oci_core_service_gateway.service_gateway.id}"
   }

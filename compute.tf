@@ -2,8 +2,8 @@
 /* Instances */
 
 resource "oci_core_instance" "vcn1-instance1" {
-  #availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[var.availability_domain -1],"name")}"
-  availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
+  #availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "vcn1-instance1"
   shape               = "${var.instance_shape}"
@@ -25,8 +25,8 @@ resource "oci_core_instance" "vcn1-instance1" {
 }
 
 resource "oci_core_instance" "vcn1-bastion" {
-  #availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[var.availability_domain -1],"name")}"
-  availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
+  #availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "vcn1-bastion"
   shape               = "${var.instance_shape}"
@@ -49,7 +49,8 @@ resource "oci_core_instance" "vcn1-bastion" {
 
 resource "oci_core_instance" "vcn2-instance1" {
   #availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[var.availability_domain -1],"name")}"
-  availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+  #availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "vcn2-instance1"
   shape               = "${var.instance_shape}"
@@ -111,7 +112,8 @@ resource "oci_core_instance_pool" "vcn1-instance_pool" {
 
   placement_configurations {
    # availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[var.availability_domain -1],"name")}"
-    availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+   # availability_domain = "DtVE:SA-SAOPAULO-1-AD-1"
+     availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[0],"name")}"
     primary_subnet_id   = "${oci_core_subnet.private_subnet1.id}"
   }
       load_balancers {
